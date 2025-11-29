@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="az" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zirvə.az - Dağ Yürüşləri və Daxili Turizm</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-white text-brand-dark antialiased font-sans transition-colors duration-300 overflow-x-hidden">
+
+    <nav class="fixed w-full z-50 transition-all duration-300 px-6 py-4 flex justify-between items-center text-white bg-black/30 backdrop-blur-md border-b border-white/10" id="navbar">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-mountain text-3xl text-brand-gold"></i>
+            <div class="text-2xl font-serif font-bold tracking-wider uppercase">
+                Zirvə<span class="text-brand-gold">.az</span>
+            </div>
+        </div>
+        
+        <div class="hidden md:flex relative gap-8 text-sm font-semibold tracking-wide uppercase items-center" id="navContainer">
+            <a href="#home" class="nav-link hover:text-brand-gold py-2" data-translate="nav_home">Ana Səhifə</a>
+            <a href="#about" class="nav-link hover:text-brand-gold py-2" data-translate="nav_about">Haqqımızda</a>
+            <a href="#planner" class="nav-link hover:text-brand-gold py-2" data-translate="nav_planner">AI Bələdçi</a>
+            <a href="#tours" class="nav-link hover:text-brand-gold py-2" data-translate="nav_tours">Yürüşlər</a>
+            <a href="#feedback-section" class="nav-link hover:text-brand-gold py-2" data-translate="nav_reviews">Rəylər</a>
+            <a href="#shop" class="nav-link hover:text-brand-gold py-2" data-translate="nav_shop">Viktorina və Hədiyyə</a>
+            
+            <div id="navMarker" class="absolute bottom-1.5 h-0.5 bg-brand-gold rounded-full transition-all !m-0" style="width: 0; left: 0;"></div>
+
+            <div class="flex items-center gap-3 border-l border-white/30 pl-6 ml-4">
+                <div class="flex bg-black/40 rounded-full p-1 border border-white/20 backdrop-blur-sm">
+                    <button onclick="changeLanguage('az')" id="lang-az" class="px-3 py-1 rounded-full text-xs font-bold transition bg-brand-green text-white">AZ</button>
+                    <button onclick="changeLanguage('en')" id="lang-en" class="px-3 py-1 rounded-full text-xs font-bold transition text-gray-300 hover:text-white">EN</button>
+                </div>
+                
+                <div class="flex bg-black/40 rounded-full p-1 border border-white/20 backdrop-blur-sm">
+                    <button onclick="setTheme('light')" id="theme-light" class="px-3 py-1 rounded-full text-xs font-bold transition bg-brand-green text-white"><i class="fas fa-sun"></i></button>
+                    <button onclick="setTheme('dark')" id="theme-dark" class="px-3 py-1 rounded-full text-xs font-bold transition text-gray-300 hover:text-white"><i class="fas fa-moon"></i></button>
+                </div>
+            </div>
+        </div>
+        
+        <button id="authBtn" onclick="openAuthModal()" class="bg-brand-green hover:bg-green-800 text-white px-6 py-2 rounded-full text-sm font-bold transition-all shadow-lg shadow-green-900/50 hidden md:flex items-center gap-2">
+            <i class="fas fa-user-circle"></i> <span data-translate="nav_login">Giriş</span>
+        </button>
+
+        <button onclick="toggleMobileMenu()" class="md:hidden text-white text-2xl p-2 focus:outline-none transition-transform active:scale-95">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
+    <div id="mobileMenu" class="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl transform translate-x-full transition-transform duration-300 flex flex-col items-center justify-center space-y-8 md:hidden">
+        <button onclick="toggleMobileMenu()" class="absolute top-6 right-6 text-white text-3xl focus:outline-none hover:text-brand-gold transition">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <div class="flex flex-col items-center gap-6 text-xl font-serif">
+            <a href="#home" onclick="toggleMobileMenu()" class="text-white hover:text-brand-gold transition" data-translate="nav_home">Ana Səhifə</a>
+            <a href="#about" onclick="toggleMobileMenu()" class="text-white hover:text-brand-gold transition" data-translate="nav_about">Haqqımızda</a>
+            <a href="#planner" onclick="toggleMobileMenu()" class="text-white hover:text-brand-gold transition" data-translate="nav_planner">AI Bələdçi</a>
+            <a href="#tours" onclick="toggleMobileMenu()" class="text-white hover:text-brand-gold transition" data-translate="nav_tours">Yürüşlər</a>
+            <a href="#feedback-section" onclick="toggleMobileMenu()" class="text-white hover:text-brand-gold transition" data-translate="nav_reviews">Rəylər</a>
+            <a href="#shop" onclick="toggleMobileMenu()" class="text-white hover:text-brand-gold transition" data-translate="nav_shop">Viktorina və Hədiyyə</a>
+        </div>
+
+        <div class="flex flex-col gap-4 items-center mt-4">
+            <div class="flex bg-white/10 rounded-full p-1">
+                <button onclick="changeLanguage('az')" class="px-6 py-2 rounded-full text-sm font-bold text-white hover:bg-white/20 transition">AZ</button>
+                <div class="w-[1px] bg-white/20 my-1"></div>
+                <button onclick="changeLanguage('en')" class="px-6 py-2 rounded-full text-sm font-bold text-white hover:bg-white/20 transition">EN</button>
+            </div>
+            
+            <div class="flex bg-white/10 rounded-full p-1">
+                <button onclick="setTheme('light')" class="px-6 py-2 rounded-full text-white hover:bg-white/20 transition"><i class="fas fa-sun"></i></button>
+                <div class="w-[1px] bg-white/20 my-1"></div>
+                <button onclick="setTheme('dark')" class="px-6 py-2 rounded-full text-white hover:bg-white/20 transition"><i class="fas fa-moon"></i></button>
+            </div>
+        </div>
+
+        <button onclick="openAuthModal(); toggleMobileMenu()" class="bg-brand-green text-white px-8 py-3 rounded-full text-lg font-bold shadow-lg flex items-center gap-2 mt-4">
+            <i class="fas fa-user-circle"></i> <span data-translate="nav_login">Giriş</span>
+        </button>
+    </div>
+
+    <header id="home" class="hero-section text-center px-4">
+        <div class="relative z-10 max-w-5xl mx-auto space-y-6 animate-fade-in-up">
+            <span class="bg-brand-gold/20 text-brand-gold border border-brand-gold/30 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest backdrop-blur-sm" data-translate="hero_tag">Daxili Turizm</span>
+            <h1 class="text-5xl md:text-7xl font-serif font-bold text-white leading-tight drop-shadow-2xl">
+                <span data-translate="hero_title_1">Azərbaycanı</span> <br>
+                <span class="text-brand-gold italic" data-translate="hero_title_2">Zirvədən</span> 
+                <span data-translate="hero_title_3">Kəşf Et</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-100 max-w-3xl mx-auto font-light leading-relaxed drop-shadow-md" data-translate="hero_desc">
+                Ölkəmizin ərazisinin 60%-ni təşkil edən möhtəşəm dağlar, yaşıl dərələr və şəlalələr sizi gözləyir. 
+                Xaricə getmədən öz ölkəni tanı!
+            </p>
+
+            <div class="flex flex-col md:flex-row gap-4 justify-center mt-8">
+                <a href="#tours" class="bg-brand-green text-white hover:bg-green-800 font-bold py-4 px-8 rounded-full transition transform hover:scale-105 shadow-xl flex items-center justify-center gap-2">
+                    <i class="fas fa-hiking"></i> <span data-translate="btn_select_route">Marşrut Seç</span>
+                </a>
+                <a href="#planner" class="bg-white text-brand-dark hover:bg-brand-gold hover:text-white font-bold py-4 px-8 rounded-full transition transform hover:scale-105 shadow-xl flex items-center justify-center gap-2">
+                    <i class="fas fa-robot"></i> <span data-translate="btn_ai_plan">AI ilə Planla</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <section id="about" class="py-24 px-6 bg-brand-light dark:bg-gray-800 relative overflow-hidden transition-colors duration-300">
+        <div class="absolute -left-20 top-20 text-9xl text-gray-200 dark:text-gray-700 font-serif font-bold opacity-20 rotate-90 select-none">DAĞLAR</div>
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center relative z-10">
+            <div class="space-y-6">
+                <h2 class="text-4xl font-serif font-bold text-brand-dark dark:text-white" data-translate="about_title">Daxili Turizm Nədir?</h2>
+                <div class="w-20 h-1 bg-brand-gold"></div>
+                <p class="text-gray-600 dark:text-gray-300 leading-relaxed text-lg" data-translate="about_text">
+                    Daxili turizm — bir ölkənin sakinlərin iştirak etdiyi və yalnız həmin ölkə çərçivəsində səyahət etdikləri turizmdir. 
+                    Belə bir məzuniyyət <b>"daxili məzuniyyət"</b> (<i>domestic holiday</i>) kimi tanınır.
+                </p>
+                <div class="bg-white dark:bg-gray-700 p-6 rounded-xl border-l-4 border-brand-green shadow-sm">
+                    <p class="text-gray-700 dark:text-gray-200 italic" data-translate="about_quote">
+                        "Dağ turizmi — xaricə getmədən öz ölkənizin təbiəti ilə tanış olmağın ən yaxşı üsullarından biridir. Yürüşlər yeni marşrutlar kəşf etməyə imkan verir."
+                    </p>
+                </div>
+                <ul class="space-y-3 mt-4">
+                    <li class="flex items-center text-gray-700 dark:text-gray-300">
+                        <i class="fas fa-check-circle text-brand-green mr-3"></i> 
+                        <span data-translate-html="about_li_1"><b>Böyük Qafqaz</b> – Bazardüzü (4466 m)</span>
+                    </li>
+                    <li class="flex items-center text-gray-700 dark:text-gray-300">
+                        <i class="fas fa-check-circle text-brand-green mr-3"></i> 
+                        <span data-translate-html="about_li_2"><b>Kiçik Qafqaz</b> – Mənzərəli dərələr</span>
+                    </li>
+                    <li class="flex items-center text-gray-700 dark:text-gray-300">
+                        <i class="fas fa-check-circle text-brand-green mr-3"></i> 
+                        <span data-translate-html="about_li_3"><b>Talış Dağları</b> – Sıx meşələr</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="relative">
+                <div class="absolute inset-0 bg-brand-gold transform rotate-6 rounded-3xl opacity-20"></div>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Bazarduzu_robl.JPG/2560px-Bazarduzu_robl.JPG" class="relative rounded-3xl shadow-2xl w-full h-[500px] object-cover transform transition hover:scale-[1.02] duration-500" alt="Hiking in Azerbaijan">
+                <div class="absolute bottom-10 -left-10 bg-white dark:bg-gray-900 p-4 rounded-xl shadow-xl max-w-xs hidden md:block animate-bounce">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-mountain text-3xl text-brand-green"></i>
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase font-bold" data-translate="highest_peak">Ən Hündür Zirvə</p>
+                            <p class="text-lg font-bold text-brand-dark dark:text-white">Bazardüzü, 4466m</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="planner" class="py-24 px-6 bg-gray-50 dark:bg-gray-900 text-brand-dark dark:text-white relative transition-colors duration-300">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <span class="text-brand-green dark:text-brand-gold font-bold tracking-widest uppercase text-xs" data-translate="ai_subtitle">Süni İntellekt Dəstəkli</span>
+                <h2 class="text-4xl font-serif font-bold text-brand-dark dark:text-white mt-2" data-translate="ai_title">Dağ Yürüşü Planlayıcısı</h2>
+                <p class="text-gray-600 dark:text-gray-400 mt-4 max-w-2xl mx-auto" data-translate="ai_desc">Siz fiziki hazırlığınızı və istəklərinizi deyin, AI sizin üçün Azərbaycan daxilində ən uyğun marşrutu qursun.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-10 border border-gray-200 dark:border-gray-700 shadow-xl">
+                <div class="lg:col-span-4 space-y-6">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 dark:text-gray-400 mb-2" data-translate="lbl_region">Bölgə</label>
+                        <select id="plannerRegion" class="w-full p-4 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:border-brand-green outline-none font-medium text-brand-dark dark:text-white">
+                            <option value="all">Bütün Azərbaycan</option>
+                            <option value="north">Böyük Qafqaz (Şimal)</option>
+                            <option value="west">Kiçik Qafqaz (Qərb)</option>
+                            <option value="south">Talış Dağları (Cənub)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 dark:text-gray-400 mb-2" data-translate="lbl_level">Çətinlik Dərəcəsi</label>
+                        <select id="plannerLevel" class="w-full p-4 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:border-brand-green outline-none font-medium text-brand-dark dark:text-white">
+                            <option value="easy">Başlanğıc (Ailəvi)</option>
+                            <option value="medium">Orta (Həvəskar)</option>
+                            <option value="hard">Çətin (Professional)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 dark:text-gray-400 mb-2" data-translate="lbl_duration">Müddət</label>
+                        <select id="plannerDays" class="w-full p-4 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:border-brand-green outline-none font-medium text-brand-dark dark:text-white">
+                            <option value="1">1 Günlük (Günübirlik)</option>
+                            <option value="2">2 Günlük (Kempinq)</option>
+                            <option value="3+">3+ Gün (Ekspedisiya)</option>
+                        </select>
+                    </div>
+                    <button onclick="generateHikingPlan()" class="w-full bg-brand-dark dark:bg-brand-green text-white py-4 rounded-xl font-bold uppercase tracking-wider hover:bg-gray-800 dark:hover:bg-green-700 transition duration-300 shadow-lg flex items-center justify-center gap-2">
+                        <span data-translate="btn_create_plan">Planı Yarat</span> <i class="fas fa-magic"></i>
+                    </button>
+                </div>
+
+                <div class="lg:col-span-8 relative min-h-[400px]">
+                    <div id="plannerResultBox" class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl h-full p-8 shadow-inner overflow-hidden relative">
+                        <div id="plannerEmpty" class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 dark:text-gray-500">
+                            <i class="fas fa-map-marked-alt text-6xl mb-4 text-gray-300 dark:text-gray-600"></i>
+                            <p class="text-sm uppercase tracking-widest font-bold" data-translate="planner_placeholder">Marşrut burada görünəcək</p>
+                        </div>
+                        
+                        <div id="plannerLoading" class="hidden absolute inset-0 bg-white/90 dark:bg-gray-800/90 z-20 flex flex-col items-center justify-center backdrop-blur-sm">
+                            <div class="flex space-x-2 mb-4">
+                                <div class="w-3 h-3 bg-brand-green rounded-full typing-dot"></div>
+                                <div class="w-3 h-3 bg-brand-green rounded-full typing-dot"></div>
+                                <div class="w-3 h-3 bg-brand-green rounded-full typing-dot"></div>
+                            </div>
+                            <p class="text-brand-dark dark:text-white font-bold animate-pulse" data-translate="planner_calculating">Marşrut hesablanır...</p>
+                        </div>
+
+                        <div id="plannerContent" class="hidden prose prose-green max-w-none text-sm md:text-base dark:prose-invert"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="tours" class="py-20 px-6 bg-brand-light dark:bg-gray-900 transition-colors duration-300 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-brand-green opacity-20 rounded-full blur-[100px]"></div>
+        <div class="absolute bottom-0 left-0 w-64 h-64 bg-brand-gold opacity-10 rounded-full blur-[100px]"></div>
+
+        <div class="max-w-7xl mx-auto relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-center md:items-end mb-12 border-b border-gray-300 dark:border-gray-800 pb-8">
+                <div class="text-center md:text-left">
+                    <span class="text-brand-gold font-bold tracking-widest uppercase text-xs" data-translate="tours_subtitle">Kəşf Et</span>
+                    <h2 class="text-4xl font-serif font-bold mt-2 text-brand-dark dark:text-white" data-translate="tours_title">Daxili Yürüş Turları</h2>
+                </div>
+                
+                <div class="flex gap-4 mt-6 md:mt-0">
+                    <button id="btn-filter-all" onclick="filterTours('all')" class="filter-btn active px-4 py-2 text-sm font-bold border border-gray-400 dark:border-gray-700 rounded-lg hover:border-brand-gold transition bg-brand-gold text-black" data-translate="filter_all">Hamısı</button>
+                    <button id="btn-filter-hiking" onclick="filterTours('hiking')" class="filter-btn px-4 py-2 text-sm font-bold border border-gray-400 dark:border-gray-700 rounded-lg hover:border-brand-gold hover:text-brand-gold transition dark:text-gray-300 text-gray-700" data-translate="filter_hiking">Dağ Yürüşü</button>
+                    <button id="btn-filter-history" onclick="filterTours('history')" class="filter-btn px-4 py-2 text-sm font-bold border border-gray-400 dark:border-gray-700 rounded-lg hover:border-brand-gold hover:text-brand-gold transition dark:text-gray-300 text-gray-700" data-translate="filter_history">Tarixi</button>
+                </div>
+            </div>
+
+            <div id="mapContainer" class="w-full h-[400px] rounded-2xl overflow-hidden shadow-2xl border border-gray-300 dark:border-gray-700 mb-12 relative">
+                <div id="tourMap" class="w-full h-full bg-gray-200 dark:bg-gray-900"></div>
+                <div class="absolute top-4 right-4 bg-black/80 backdrop-blur text-white px-4 py-2 rounded-lg text-xs font-bold z-[400]">
+                    <i class="fas fa-map-marker-alt text-brand-gold mr-1"></i> Azərbaycan
+                </div>
+            </div>
+
+            <div id="toursGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                </div>
+        </div>
+    </section>
+
+    <section id="feedback-section" class="py-24 px-6 bg-brand-light dark:bg-gray-800 relative overflow-hidden transition-colors duration-300">
+        <div class="absolute top-0 right-0 w-96 h-96 bg-brand-gold opacity-5 rounded-full filter blur-3xl translate-y-1/2 translate-x-1/2"></div>
+        <div class="absolute bottom-0 left-0 w-80 h-80 bg-brand-gold opacity-5 rounded-full filter blur-3xl -translate-y-1/2 -translate-x-1/2"></div>
+
+        <div class="max-w-7xl mx-auto relative z-10">
+            <div class="text-center mb-16">
+                 <span class="text-brand-gold font-bold tracking-widest uppercase text-xs" data-translate="feedback_subtitle">Sizin Fikirləriniz</span>
+                 <h2 class="text-4xl font-serif font-bold mt-2 mb-4 text-brand-dark dark:text-white" data-translate="feedback_title">İstifadəçi Rəyləri</h2>
+                 <div class="w-24 h-1 bg-brand-gold mx-auto"></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div class="space-y-6">
+                    <div id="feedbackList" class="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                        </div>
+                </div>
+
+                <div class="bg-white dark:bg-white/5 dark:backdrop-blur-md p-8 rounded-2xl border border-gray-200 dark:border-white/10 h-fit shadow-2xl">
+                    <h3 class="text-2xl font-serif font-bold mb-6 text-brand-gold" data-translate="feedback_form_title">Rəy Bildirin</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 dark:text-gray-400 tracking-wider mb-2" data-translate="lbl_name">Adınız</label>
+                            <input id="feedName" type="text" class="w-full bg-gray-100 dark:bg-black/40 border border-gray-300 dark:border-gray-600 text-brand-dark dark:text-white p-4 rounded-lg focus:border-brand-gold outline-none transition" placeholder="...">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 dark:text-gray-400 tracking-wider mb-2" data-translate="lbl_rating">Reytinq</label>
+                            <div class="flex gap-2" id="starRating">
+                                <button onclick="setRating(1)" class="text-2xl text-gray-400 dark:text-gray-600 hover:text-brand-gold transition star-btn"><i class="fas fa-star"></i></button>
+                                <button onclick="setRating(2)" class="text-2xl text-gray-400 dark:text-gray-600 hover:text-brand-gold transition star-btn"><i class="fas fa-star"></i></button>
+                                <button onclick="setRating(3)" class="text-2xl text-gray-400 dark:text-gray-600 hover:text-brand-gold transition star-btn"><i class="fas fa-star"></i></button>
+                                <button onclick="setRating(4)" class="text-2xl text-gray-400 dark:text-gray-600 hover:text-brand-gold transition star-btn"><i class="fas fa-star"></i></button>
+                                <button onclick="setRating(5)" class="text-2xl text-gray-400 dark:text-gray-600 hover:text-brand-gold transition star-btn"><i class="fas fa-star"></i></button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 dark:text-gray-400 tracking-wider mb-2" data-translate="lbl_comment">Şərhiniz</label>
+                            <textarea id="feedText" rows="4" class="w-full bg-gray-100 dark:bg-black/40 border border-gray-300 dark:border-gray-600 text-brand-dark dark:text-white p-4 rounded-lg focus:border-brand-gold outline-none transition resize-none" placeholder="..."></textarea>
+                        </div>
+
+                        <button onclick="submitFeedback()" class="w-full bg-brand-gold text-white py-4 font-bold uppercase tracking-wider hover:bg-yellow-600 transition duration-300 shadow-md rounded-lg" data-translate="btn_submit_feedback">
+                            Rəyi Göndər
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="shop" class="py-24 px-6 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <span class="text-brand-green dark:text-brand-gold font-bold tracking-widest uppercase text-xs" data-translate="shop_subtitle">Loyallıq Proqramı</span>
+                <h2 class="text-4xl font-serif font-bold mt-2 text-brand-dark dark:text-white" data-translate="shop_title">Viktorina və Mükafatlar</h2>
+                <p class="text-gray-600 dark:text-gray-400 mt-4 max-w-2xl mx-auto" data-translate="shop_desc">Suallara cavab verin, xal toplayın və endirim kuponları qazanın!</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div class="bg-white dark:bg-gray-800 rounded-3xl p-8 border border-gray-200 dark:border-gray-700 shadow-xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-brand-dark dark:text-white"><i class="fas fa-brain text-brand-gold mr-2"></i> <span data-translate="quiz_header">Viktorina</span></h3>
+                        <div class="bg-brand-green/10 text-brand-green px-4 py-2 rounded-full font-bold">
+                            <span id="userPointsDisplay">0</span> <span class="text-xs uppercase" data-translate="shop_points">Xal</span>
+                        </div>
+                    </div>
+
+                    <div id="quizLevelSelect" class="grid grid-cols-3 gap-4 mb-6">
+                        <button onclick="startQuiz('easy')" class="p-4 rounded-xl border-2 border-green-200 hover:border-green-500 hover:bg-green-50 transition text-center group">
+                            <div class="text-2xl mb-1">🌱</div>
+                            <div class="font-bold text-sm" data-translate="level_easy">Asan</div>
+                            <div class="text-xs text-gray-500" data-translate="shop_point_gain_1">+1 Xal</div>
+                        </button>
+                        <button onclick="startQuiz('medium')" class="p-4 rounded-xl border-2 border-yellow-200 hover:border-yellow-500 hover:bg-yellow-50 transition text-center group">
+                            <div class="text-2xl mb-1">🏔️</div>
+                            <div class="font-bold text-sm" data-translate="level_medium">Orta</div>
+                            <div class="text-xs text-gray-500" data-translate="shop_point_gain_2">+2 Xal</div>
+                        </button>
+                        <button onclick="startQuiz('hard')" class="p-4 rounded-xl border-2 border-red-200 hover:border-red-500 hover:bg-red-50 transition text-center group">
+                            <div class="text-2xl mb-1">🌋</div>
+                            <div class="font-bold text-sm" data-translate="level_hard">Çətin</div>
+                            <div class="text-xs text-gray-500" data-translate="shop_point_gain_3">+3 Xal</div>
+                        </button>
+                    </div>
+
+                    <div id="quizContainer" class="hidden">
+                        <div class="mb-4">
+                            <span class="text-xs font-bold text-gray-400 uppercase" id="quizLevelBadge">LEVEL</span>
+                            <h4 id="questionText" class="text-lg font-bold text-brand-dark dark:text-white mt-2">Sual burada olacaq?</h4>
+                        </div>
+                        <div id="optionsContainer" class="space-y-3">
+                            </div>
+                        <div id="quizResult" class="mt-4 font-bold text-center hidden"></div>
+                        <button onclick="resetQuizUI()" class="mt-6 w-full text-gray-500 hover:text-brand-dark dark:text-gray-400 dark:hover:text-white text-sm underline" data-translate="quiz_cancel">Ləğv et</button>
+                    </div>
+                </div>
+
+                <div class="bg-brand-light dark:bg-gray-800 rounded-3xl p-8 border border-gray-200 dark:border-gray-700 shadow-xl">
+                    <h3 class="text-2xl font-bold text-brand-dark dark:text-white mb-6"><i class="fas fa-shopping-cart text-brand-green mr-2"></i> <span data-translate="shop_header">Kupon Marketi</span></h3>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-xl border border-gray-200 dark:border-gray-600 flex flex-col items-center text-center relative overflow-hidden group">
+                            <div class="absolute top-0 right-0 bg-brand-green text-white text-xs px-2 py-1 rounded-bl-lg font-bold">10%</div>
+                            <div class="text-3xl text-gray-400 mb-2"><i class="fas fa-ticket-alt"></i></div>
+                            <h4 class="font-bold text-brand-dark dark:text-white mb-1" data-translate="coupon_discount_10">10% Endirim</h4>
+                            <p class="text-brand-gold font-bold text-lg mb-3" data-translate="coupon_cost_200">200 Xal</p>
+                            <button onclick="buyCoupon(10, 200)" class="w-full bg-gray-900 text-white py-2 rounded-lg text-sm font-bold hover:bg-brand-gold transition" data-translate="coupon_btn_buy">Almaq</button>
+                        </div>
+
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-xl border border-gray-200 dark:border-gray-600 flex flex-col items-center text-center relative overflow-hidden group">
+                            <div class="absolute top-0 right-0 bg-brand-green text-white text-xs px-2 py-1 rounded-bl-lg font-bold">20%</div>
+                            <div class="text-3xl text-gray-400 mb-2"><i class="fas fa-ticket-alt"></i></div>
+                            <h4 class="font-bold text-brand-dark dark:text-white mb-1" data-translate="coupon_discount_20">20% Endirim</h4>
+                            <p class="text-brand-gold font-bold text-lg mb-3" data-translate="coupon_cost_500">500 Xal</p>
+                            <button onclick="buyCoupon(20, 500)" class="w-full bg-gray-900 text-white py-2 rounded-lg text-sm font-bold hover:bg-brand-gold transition" data-translate="coupon_btn_buy">Almaq</button>
+                        </div>
+
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-xl border border-gray-200 dark:border-gray-600 flex flex-col items-center text-center relative overflow-hidden group">
+                            <div class="absolute top-0 right-0 bg-brand-gold text-black text-xs px-2 py-1 rounded-bl-lg font-bold">50%</div>
+                            <div class="text-3xl text-gray-400 mb-2"><i class="fas fa-star"></i></div>
+                            <h4 class="font-bold text-brand-dark dark:text-white mb-1" data-translate="coupon_discount_50">50% Endirim</h4>
+                            <p class="text-brand-gold font-bold text-lg mb-3" data-translate="coupon_cost_1000">1000 Xal</p>
+                            <button onclick="buyCoupon(50, 1000)" class="w-full bg-gray-900 text-white py-2 rounded-lg text-sm font-bold hover:bg-brand-gold transition" data-translate="coupon_btn_buy">Almaq</button>
+                        </div>
+
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-xl border border-gray-200 dark:border-gray-600 flex flex-col items-center text-center relative overflow-hidden group border-brand-gold">
+                            <div class="absolute top-0 right-0 bg-brand-gold text-black text-xs px-2 py-1 rounded-bl-lg font-bold">100%</div>
+                            <div class="text-3xl text-brand-gold mb-2"><i class="fas fa-crown"></i></div>
+                            <h4 class="font-bold text-brand-dark dark:text-white mb-1" data-translate="coupon_free">Tam Pulsuz</h4>
+                            <p class="text-brand-gold font-bold text-lg mb-3" data-translate="coupon_cost_2500">2500 Xal</p>
+                            <button onclick="buyCoupon(100, 2500)" class="w-full bg-gray-900 text-white py-2 rounded-lg text-sm font-bold hover:bg-brand-gold transition" data-translate="coupon_btn_buy">Almaq</button>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-600">
+                        <h4 class="font-bold text-sm uppercase text-gray-500 mb-3" data-translate="shop_inventory">Kuponlarınız</h4>
+                        <div id="userCouponsList" class="flex flex-wrap gap-2 text-sm text-gray-600 dark:text-gray-400">
+                            <span class="italic">Hələ heç nə yoxdur...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="faq-section" class="py-20 bg-brand-light dark:bg-gray-900 transition-colors duration-300">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-serif font-bold text-center mb-4 text-brand-dark dark:text-white" data-translate="faq_title">Tez-tez verilən suallar</h2>
+                <div class="w-24 h-1 bg-brand-gold mx-auto"></div>
+            </div>
+            
+            <div class="faq-item mb-4 border-b border-gray-200 dark:border-gray-700">
+                <button class="faq-toggle flex justify-between items-center w-full py-4 text-left text-lg font-semibold text-gray-800 dark:text-gray-200 hover:text-brand-gold transition duration-300">
+                    <span data-translate="faq_q1">Zirvə.az nədir və nəyə görə var?</span>
+                    <i class="fas fa-chevron-down transform transition-transform duration-300 dark:text-gray-400"></i>
+                </button>
+                <div class="faq-content">
+                    <p class="pb-4 text-gray-600 dark:text-gray-400 leading-relaxed" data-translate="faq_a1">
+                        Zirvə.az insanların Azərbaycanı gəzməsinə, daxili turizmi kəşf etməsinə və dağ yürüşlərini planlamasına imkan verən yerli platformadır.
+                    </p>
+                </div>
+            </div>
+
+            <div class="faq-item mb-4 border-b border-gray-200 dark:border-gray-700">
+                <button class="faq-toggle flex justify-between items-center w-full py-4 text-left text-lg font-semibold text-gray-800 dark:text-gray-200 hover:text-brand-gold transition duration-300">
+                    <span data-translate="faq_q2">Turları necə bron edə bilərəm?</span>
+                    <i class="fas fa-chevron-down transform transition-transform duration-300 dark:text-gray-400"></i>
+                </button>
+                <div class="faq-content">
+                    <p class="pb-4 text-gray-600 dark:text-gray-400 leading-relaxed" data-translate="faq_a2">
+                        Turu bron etmək üçün, sadəcə bəyəndiyiniz turun üzərinə klikləyin, açılan modal pəncərədə detalları gözdən keçirin və 'İştirak Et' düyməsinə basaraq müraciət edin.
+                    </p>
+                </div>
+            </div>
+
+            <div class="faq-item mb-4 border-b border-gray-200 dark:border-gray-700">
+                <button class="faq-toggle flex justify-between items-center w-full py-4 text-left text-lg font-semibold text-gray-800 dark:text-gray-200 hover:text-brand-gold transition duration-300">
+                    <span data-translate="faq_q3">Qiymətlər niyə fərqlidir?</span>
+                    <i class="fas fa-chevron-down transform transition-transform duration-300 dark:text-gray-400"></i>
+                </button>
+                <div class="faq-content">
+                    <p class="pb-4 text-gray-600 dark:text-gray-400 leading-relaxed" data-translate="faq_a3">
+                        Qiymətlər mövsümdən, tura daxil olan xidmətlərdən (nəqliyyat, yemək, bələdçi) və tur müddətindən asılı olaraq dəyişir.
+                    </p>
+                </div>
+            </div>
+
+            <div class="faq-item mb-4 border-b border-gray-200 dark:border-gray-700">
+                <button class="faq-toggle flex justify-between items-center w-full py-4 text-left text-lg font-semibold text-gray-800 dark:text-gray-200 hover:text-brand-gold transition duration-300">
+                    <span data-translate="faq_q4">Zirvə.az saytını istifadə etmək ödənişsizdir?</span>
+                    <i class="fas fa-chevron-down transform transition-transform duration-300 dark:text-gray-400"></i>
+                </button>
+                <div class="faq-content">
+                    <p class="pb-4 text-gray-600 dark:text-gray-400 leading-relaxed" data-translate="faq_a4">
+                        Bəli, bu saytdan istifadə etmək, marşrutları axtarmaq və AI planlayıcıdan yararlanmaq tamamilə ödənişsizdir.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <footer class="bg-black text-white py-12 border-t border-gray-900">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            
+            <div class="flex items-center justify-center gap-6 mb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-mountain text-2xl text-brand-gold"></i>
+                    <div class="text-2xl font-serif font-bold tracking-wider uppercase">
+                        Zirvə<span class="text-brand-gold">.az</span>
+                    </div>
+                </div>
+
+                <div class="h-6 w-px bg-gray-700"></div>
+
+                <img src="https://tourism.gov.az/uploads/images/logo_aztur.png" alt="Azerbaijan Tourism Board" class="h-10 object-contain brightness-110 opacity-90 hover:opacity-100 transition duration-300">
+            </div>
+
+            <p class="text-gray-500 text-sm max-w-md mx-auto mb-8" data-translate="footer_desc">
+                Azərbaycanın daxili turizm potensialını inkişaf etdirmək və dağ yürüşlərini təşviq etmək üçün yaradılmış platforma.
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto mb-8 text-left border-t border-gray-800 pt-8">
+                <div>
+                    <h4 class="text-brand-gold font-bold uppercase mb-4 text-sm" data-translate="footer_about">Haqqımızda</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed" data-translate="footer_about_text">
+                        Zirvə.az komandası olaraq məqsədimiz yerli təbiət sevərləri bir araya gətirmək, təhlükəsiz və maraqlı marşrutları hamı üçün əlçatan etməkdir.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-brand-gold font-bold uppercase mb-4 text-sm" data-translate="footer_contact">Əlaqə</h4>
+                    <ul class="text-gray-400 text-sm space-y-2">
+                        <li><span class="text-gray-500 w-16 inline-block" data-translate="contact_phone">Telefon:</span> +994 50 123 45 67</li>
+                        <li><span class="text-gray-500 w-16 inline-block" data-translate="contact_email">Email:</span> info@zirve.az</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-8 text-xs text-gray-700 font-mono">
+                © 2025 Zirvə.az | Bütün hüquqlar qorunur
+            </div>
+        </div>
+    </footer>
+    
+    <div id="tourModal" class="modal fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
+        <div class="modal-content bg-white dark:bg-gray-800 w-full max-w-4xl max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 z-10 w-10 h-10 bg-black/50 hover:bg-black text-white rounded-full flex items-center justify-center transition"><i class="fas fa-times"></i></button>
+            <div class="w-full md:w-1/2 h-64 md:h-auto relative">
+                <img id="modalImg" src="" class="w-full h-full object-cover">
+                <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black to-transparent">
+                    <h2 id="modalTitle" class="text-2xl md:text-3xl font-serif font-bold text-white"></h2>
+                    <p id="modalRegion" class="text-brand-gold font-bold text-sm uppercase tracking-wider mt-1"></p>
+                </div>
+            </div>
+            <div class="w-full md:w-1/2 p-8 overflow-y-auto flex flex-col">
+                <div class="flex-grow">
+                    <p id="modalDesc" class="text-gray-600 dark:text-gray-300 leading-relaxed mb-6"></p>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-100 dark:border-gray-600">
+                            <p class="text-xs text-gray-400 uppercase font-bold" data-translate="modal_price">Qiymət</p>
+                            <p id="modalPrice" class="text-lg font-bold text-brand-green dark:text-brand-gold"></p>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-100 dark:border-gray-600">
+                            <p class="text-xs text-gray-400 uppercase font-bold" data-translate="modal_days">Müddət</p>
+                            <p id="modalDays" class="text-lg font-bold text-gray-800 dark:text-white"></p>
+                        </div>
+                    </div>
+
+                    <h4 class="font-bold uppercase text-xs text-gray-400 mb-3 tracking-wider" data-translate="modal_features">Xüsusiyyətlər</h4>
+                    <ul id="modalFeatures" class="space-y-2 mb-8 text-sm text-gray-700 dark:text-gray-300"></ul>
+                </div>
+                <button onclick="handleParticipate()" class="w-full bg-brand-green text-white py-4 font-bold uppercase rounded-xl hover:bg-green-900 transition shadow-lg" data-translate="btn_participate">
+                    İştirak Et
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="authModal" class="modal fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
+        <div class="modal-content bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl relative p-8">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 z-10 w-8 h-8 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-500 dark:text-white rounded-full flex items-center justify-center transition"><i class="fas fa-times"></i></button>
+            
+            <div class="flex border-b border-gray-200 dark:border-gray-700 mb-6">
+                <button onclick="switchAuthTab('login')" id="tabLogin" class="flex-1 pb-3 font-bold text-brand-green border-b-2 border-brand-green transition-colors" data-translate="auth_tab_login">Giriş</button>
+                <button onclick="switchAuthTab('register')" id="tabRegister" class="flex-1 pb-3 font-bold text-gray-400 dark:text-gray-500 hover:text-brand-gold transition-colors" data-translate="auth_tab_register">Qeydiyyat</button>
+            </div>
+
+            <div id="formLogin" class="space-y-4 fade-in">
+                <div id="loginError" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded text-sm"></div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 dark:text-gray-400 mb-2" data-translate="auth_username">İstifadəçi Adı</label>
+                    <input type="text" id="loginUsername" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-3 focus:border-brand-green outline-none text-brand-dark dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 dark:text-gray-400 mb-2" data-translate="auth_password">Şifrə</label>
+                    <input type="password" id="loginPassword" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-3 focus:border-brand-green outline-none text-brand-dark dark:text-white">
+                </div>
+                <button onclick="handleLogin()" class="w-full bg-brand-green text-white py-3 rounded-xl font-bold hover:bg-green-800 transition shadow-lg" data-translate="auth_btn_login">Daxil Ol</button>
+            </div>
+
+            <div id="formRegister" class="space-y-4 hidden fade-in">
+                <div id="registerError" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded text-sm"></div>
+                <div id="registerSuccess" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded text-sm"></div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 dark:text-gray-400 mb-2" data-translate="auth_username">İstifadəçi Adı</label>
+                    <input type="text" id="regUsername" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-3 focus:border-brand-green outline-none text-brand-dark dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 dark:text-gray-400 mb-2" data-translate="auth_password">Şifrə</label>
+                    <input type="password" id="regPassword" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-3 focus:border-brand-green outline-none text-brand-dark dark:text-white">
+                </div>
+                <button onclick="handleRegister()" class="w-full bg-brand-gold text-white py-3 rounded-xl font-bold hover:bg-yellow-600 transition shadow-lg" data-translate="auth_btn_register">Qeydiyyatdan Keç</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="chat-container">
+        <div id="chatWindow" class="chat-window dark:bg-gray-800 dark:border-gray-700">
+            <div class="bg-brand-green text-white p-4 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 bg-green-300 rounded-full animate-pulse"></div>
+                    <span class="font-bold text-sm">Zirvə Bələdçisi</span>
+                </div>
+                <button onclick="toggleChat()" class="text-white hover:text-green-200"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="chatMessages" class="flex-1 p-4 overflow-y-auto bg-white dark:bg-gray-800 space-y-4 text-sm">
+                <div class="message bot p-3 w-fit shadow-sm dark:bg-gray-700 dark:text-gray-200" data-translate="chat_welcome">
+                    Salam! Mən sizin dağ bələdçinizəm. Azərbaycanın hansı zirvəsini fəth etmək istəyirsiniz?
+                </div>
+            </div>
+            <div class="p-3 bg-gray-50 dark:bg-gray-900 border-t dark:border-gray-700 flex gap-2">
+                <input type="text" id="chatInput" placeholder="Sualınızı yazın..." class="flex-1 px-4 py-2 border dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-full text-sm focus:border-brand-green outline-none" onkeypress="handleKeyPress(event)">
+                <button onclick="sendChatMessage()" class="w-10 h-10 bg-brand-green text-white rounded-full flex items-center justify-center hover:bg-green-800 transition"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+
+        <button onclick="toggleChat()" class="w-14 h-14 bg-brand-green text-white rounded-full flex items-center justify-center shadow-2xl hover:bg-green-800 hover:scale-110 transition duration-300 border-2 border-white">
+            <i class="fas fa-hiking text-xl"></i>
+        </button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

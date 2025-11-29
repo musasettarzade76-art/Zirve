@@ -1,0 +1,219 @@
+/* GLOBAL SETTINGS */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 100px; /* Sabit header üçün yer saxlayır */
+    overflow-x: hidden; /* Üfüqi sürüşmənin qarşısını qlobal olaraq alır */
+}
+
+body { 
+    transition: background-color 0.3s, color 0.3s; 
+    overflow-x: hidden; /* Body üçün də əlavə sığorta */
+    width: 100%;
+}
+
+/* Dark Mode Styles explicitly handled via Tailwind 'dark' class mostly, but some custom overrides here */
+html.dark body {
+    background-color: #121212;
+    color: #f3f4f6;
+}
+
+/* HERO SECTION */
+.hero-section {
+    min-height: 100vh;
+    /* Shahdag or similar mountain visual */
+    background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/%C5%9Eahda%C4%9F_Mountain%2C_Qusar%2C_2013.JPG/2560px-%C5%9Eahda%C4%9F_Mountain%2C_Qusar%2C_2013.JPG') no-repeat center center/cover;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-attachment: fixed;
+}
+
+/* MODAL STYLES */
+.modal { transition: opacity 0.3s ease-in-out; opacity: 0; pointer-events: none; }
+.modal.active { opacity: 1; pointer-events: auto; }
+.modal-content { transform: scale(0.95); transition: transform 0.3s ease-in-out; }
+.modal.active .modal-content { transform: scale(1); }
+
+/* CARD HOVER EFFECTS */
+.tour-card {
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.tour-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px -10px rgba(44, 94, 26, 0.25);
+}
+
+/* ANIMATIONS */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* CHAT WIDGET STYLES */
+.chat-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    gap: 15px;
+}
+
+.chat-window { 
+    width: 350px; 
+    height: 500px; 
+    background: white; 
+    border-radius: 20px; 
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); 
+    overflow: hidden; 
+    border: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    
+    /* Animasiya üçün əsas xüsusiyyətlər */
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    pointer-events: none;
+    transform-origin: bottom right;
+    transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+    position: absolute; /* Butonun üstündə qalması üçün */
+    bottom: 70px; /* Butondan bir az yuxarı */
+    right: 0;
+}
+
+/* Çat aktiv olanda */
+.chat-window.active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.message.bot { background-color: #F3F8F2; color: #1F2937; border-radius: 12px 12px 12px 0; border-left: 3px solid #2C5E1A; }
+.message.user { background-color: #2C5E1A; color: white; border-radius: 12px 12px 0 12px; margin-left: auto; }
+
+/* MAP PIN ANIMATION */
+.custom-pin div {
+    animation: pulse-green 2s infinite;
+    background-color: #2C5E1A;
+    border: 2px solid white;
+}
+@keyframes pulse-green {
+    0% { box-shadow: 0 0 0 0 rgba(44, 94, 26, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(44, 94, 26, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(44, 94, 26, 0); }
+}
+
+/* LOADING DOTS */
+.typing-dot { animation: typing 1.4s infinite ease-in-out both; }
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+@keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+/* CUSTOM SCROLLBAR */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #2C5E1A; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #1a3810; }
+
+/* FAQ ACCORDION ANIMATION */
+.faq-content {
+    transition: max-height 0.4s ease-out;
+    max-height: 0;
+    overflow: hidden;
+}
+
+/* SMOOTH NAVIGATOR ANIMATIONS */
+#navMarker {
+    /* Bezier curve creates the "elastic" or "gliding" feel */
+    transition: left 0.6s cubic-bezier(0.23, 1, 0.32, 1), width 0.4s ease-out;
+}
+
+.nav-link {
+    transition: transform 0.2s ease, color 0.3s ease;
+    display: inline-block;
+}
+
+.nav-link:hover {
+    transform: scale(1.05);
+}
+
+/* SEE MORE / SEE LESS ANIMATIONS */
+.text-content {
+    max-height: 4.5em; /* Approximately 3 lines of text */
+    overflow: hidden;
+    position: relative;
+    transition: max-height 0.5s ease-in-out;
+}
+
+.text-content.expanded {
+    max-height: 1000px; /* Arbitrary large height to fit full text */
+}
+
+/* Fade overlay for collapsed state */
+.text-content:not(.expanded)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2.5em;
+    background: linear-gradient(to bottom, transparent, white);
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+/* Dark mode fade adjustment */
+html.dark .text-content:not(.expanded)::after {
+    background: linear-gradient(to bottom, transparent, #1f2937); 
+}
+
+.see-more-btn {
+    background: none;
+    border: none;
+    color: #D4AF37; /* Brand Gold */
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 6px;
+    padding: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: color 0.3s;
+}
+
+.see-more-btn:hover {
+    color: #2C5E1A; /* Brand Green */
+}
+
+/* QUIZ STYLES */
+.quiz-option {
+    transition: all 0.2s;
+}
+.quiz-option:hover:not(.disabled) {
+    transform: translateX(5px);
+    background-color: #f3f4f6;
+}
+html.dark .quiz-option:hover:not(.disabled) {
+    background-color: #374151;
+}
