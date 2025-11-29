@@ -467,7 +467,7 @@ const tourDatabase = [
     },
     { 
         id: 13, 
-                name: { az: "Gədəbəy, Cavanşir Qalası", en: "Baku - Maiden Tower" }, 
+                name: { az: "Gədəbəy, Cavanşir Qalası", en: "Gedebey, Cavanshir Tower" }, 
                 region: { az: "Gədəbəy", en: "Gədəbəy" }, 
                 type: "tour",
                 price: 50, 
@@ -1329,3 +1329,4 @@ window.onload = function() {
     });
 
 }
+
