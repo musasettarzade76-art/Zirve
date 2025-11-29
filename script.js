@@ -24,7 +24,7 @@ tailwind.config = {
 /* =========================================
    2. GLOBAL VARIABLES & CONSTANTS
    ========================================= */
-const apiKey = "AIzaSyCt2ghf9zQhWeOJz0arYxrng10k8JfEbZ4"; // API KEY is injected at runtime
+// API KEY ARTIQ BURADA DEYİL - VERCEL SERVERİNDƏDİR
 
 // Language & Translations
 let currentLang = 'az';
@@ -167,7 +167,6 @@ function showAlert(message) {
     }
 
     const toast = document.createElement("div");
-    // UPDATED ANIMATION: Added easing cubic-bezier and longer duration for softness
     toast.className =
         "pointer-events-auto bg-gray-900/95 backdrop-blur text-white px-5 py-4 rounded-xl shadow-2xl " +
         "transform opacity-0 translate-x-8 scale-90 transition-all duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] max-w-xs border border-white/10";
@@ -181,20 +180,17 @@ function showAlert(message) {
 
     container.appendChild(toast);
 
-    // OPEN-IN animation
     requestAnimationFrame(() => {
         toast.classList.remove("opacity-0", "translate-x-8", "scale-90");
         toast.classList.add("opacity-100", "translate-x-0", "scale-100");
     });
 
-    // CLOSE-OUT animation
     setTimeout(() => {
         toast.classList.add("opacity-0", "translate-x-8", "scale-90");
-        setTimeout(() => toast.remove(), 550); // wait for transition
+        setTimeout(() => toast.remove(), 550);
     }, 3000);
 }
 
-// --- NEW FUNCTION TO HANDLE PARTICIPATE BUTTON CLICK ---
 function handleParticipate() {
     if (!currentUser) {
         const msg = currentLang === 'az' ? 
@@ -212,10 +208,8 @@ function handleParticipate() {
    4. NAVIGATION & THEME LOGIC
    ========================================= */
 
-// --- MOBILE MENU FUNCTION ---
 function toggleMobileMenu() {
     const menu = document.getElementById('mobileMenu');
-    // Toggle translate class to slide in/out
     if (menu.classList.contains('translate-x-full')) {
         menu.classList.remove('translate-x-full');
     } else {
@@ -226,7 +220,6 @@ function toggleMobileMenu() {
 function changeLanguage(lang) {
     currentLang = lang;
     
-    // Standard Text Translation
     document.querySelectorAll('[data-translate]').forEach(el => {
         const key = el.getAttribute('data-translate');
         if(translations[lang][key]) {
@@ -234,7 +227,6 @@ function changeLanguage(lang) {
         }
     });
 
-    // HTML Content Translation (For bold tags etc)
     document.querySelectorAll('[data-translate-html]').forEach(el => {
         const key = el.getAttribute('data-translate-html');
         if(translations[lang][key]) {
@@ -242,10 +234,8 @@ function changeLanguage(lang) {
         }
     });
     
-    // Placeholder Translation
     document.getElementById('chatInput').placeholder = translations[lang].chat_placeholder;
 
-    // Update Visual Buttons
     const btnAz = document.getElementById('lang-az');
     const btnEn = document.getElementById('lang-en');
 
@@ -263,13 +253,11 @@ function changeLanguage(lang) {
         btnAz.classList.add('text-gray-300', 'hover:text-white');
     }
     
-    // Re-render components
     renderFeedbacks();
     updateAuthButton();
-    renderTours(getCurrentFilterType()); // Re-render tours with new lang
-    renderCoupons(); // Re-render coupons (points etc)
+    renderTours(getCurrentFilterType());
+    renderCoupons();
 
-    // Update Planner Select Options Manually
     const regionSelect = document.getElementById('plannerRegion');
     const levelSelect = document.getElementById('plannerLevel');
     const daysSelect = document.getElementById('plannerDays');
@@ -295,7 +283,6 @@ function changeLanguage(lang) {
     }
 }
 
-// --- THEME SWITCHER LOGIC ---
 function setTheme(mode) {
     const html = document.documentElement;
     const btnLight = document.getElementById('theme-light');
@@ -318,13 +305,11 @@ function setTheme(mode) {
     }
 }
 
-// --- NAVIGATION MARKER LOGIC ---
-// Scroll spy logic
 let isManualScrolling = false;
 let scrollTimeout;
 
 window.addEventListener('scroll', () => {
-    if (isManualScrolling) return; // Klik zamanı avtomatik yenilənməni dayandır
+    if (isManualScrolling) return;
 
     const sections = document.querySelectorAll('section, header');
     const navLinks = document.querySelectorAll('.nav-link');
@@ -334,28 +319,21 @@ window.addEventListener('scroll', () => {
     
     sections.forEach(section => {
         const sectionTop = section.offsetTop;
-        // Offset logic: consider the fixed navbar height
         if (pageYOffset >= (sectionTop - 250)) { 
             current = section.getAttribute('id');
         }
     });
 
-    // If we are at the very top, default to 'home'
     if (window.scrollY < 100) {
         current = 'home';
     }
 
-    let activeLinkFound = false;
-
     navLinks.forEach(link => {
-        // Check if href ends with #currentId
         if (link.getAttribute('href') === `#${current}`) {
-            // Move marker
             navMarker.style.width = `${link.offsetWidth}px`;
             navMarker.style.left = `${link.offsetLeft}px`;
             navMarker.style.opacity = '1';
             link.classList.add('text-brand-gold');
-            activeLinkFound = true;
         } else {
             link.classList.remove('text-brand-gold');
         }
@@ -366,7 +344,6 @@ window.addEventListener('scroll', () => {
    5. DATA & MAP LOGIC
    ========================================= */
 
-// --- AZERBAIJAN ONLY DATABASE (MULTI-LANGUAGE) ---
 const tourDatabase = [
     { 
         id: 18, 
@@ -586,14 +563,12 @@ const tourDatabase = [
     }
 ];
 
-// --- MAP LOGIC ---
 let map;
 let markers = [];
 
 function initMap() {
-    map = L.map('tourMap', { scrollWheelZoom: false }).setView([40.5, 47.5], 7); // Center on Azerbaijan
+    map = L.map('tourMap', { scrollWheelZoom: false }).setView([40.5, 47.5], 7); 
     
-    // CartoDB Dark Matter (Matches theme)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: '© OpenStreetMap © CARTO',
         maxZoom: 19
@@ -615,7 +590,6 @@ function updateMap(data) {
             iconAnchor: [7, 7]
         });
 
-        // Update popup to use currentLang
         const popup = `
             <div class="text-center min-w-[150px]">
                 <img src="${t.img}" class="w-full h-24 object-cover rounded mb-2">
@@ -629,8 +603,6 @@ function updateMap(data) {
     });
 }
 
-// --- RENDER FUNCTIONS ---
-// Helper to get current active filter
 function getCurrentFilterType() {
     if(document.getElementById('btn-filter-all').classList.contains('bg-brand-gold')) return 'all';
     if(document.getElementById('btn-filter-hiking').classList.contains('bg-brand-gold')) return 'hiking';
@@ -676,21 +648,18 @@ function renderTours(filterType = 'all') {
     const daysLabel = translations[currentLang].modal_days;
     const priceLabel = translations[currentLang].modal_price;
     
-    // Update the static labels immediately for the just-rendered cards
     grid.querySelectorAll('[data-translate="modal_days"]').forEach(el => el.innerText = daysLabel);
     grid.querySelectorAll('[data-translate="modal_price"]').forEach(el => el.innerText = priceLabel);
 }
 
 function filterTours(type) {
-    // Reset all buttons
     const btns = ['btn-filter-all', 'btn-filter-hiking', 'btn-filter-history'];
     btns.forEach(id => {
         const btn = document.getElementById(id);
         btn.classList.remove('bg-brand-gold', 'text-black');
-        btn.classList.add('dark:text-gray-300', 'text-gray-700'); // inactive state
+        btn.classList.add('dark:text-gray-300', 'text-gray-700');
     });
 
-    // Activate specific button
     let activeBtnId = 'btn-filter-all';
     if(type === 'hiking') activeBtnId = 'btn-filter-hiking';
     if(type === 'history') activeBtnId = 'btn-filter-history';
@@ -711,16 +680,13 @@ const feedbacks = [
 let currentRating = 5;
 function setRating(r) {
     currentRating = r;
-    // DÜZƏLİŞ: .star-btn i əvəzinə birbaşa .star-btn seçirik, çünki rənglər button-dadır
     const buttons = document.querySelectorAll('.star-btn');
     
     buttons.forEach((btn, idx) => {
         if(idx < r) {
-            // Seçilmiş ulduzlar (Sarı)
             btn.classList.remove('text-gray-400', 'dark:text-gray-600');
             btn.classList.add('text-brand-gold');
         } else {
-            // Seçilməmiş ulduzlar (Boz)
             btn.classList.add('text-gray-400', 'dark:text-gray-600');
             btn.classList.remove('text-brand-gold');
         }
@@ -733,7 +699,6 @@ function renderFeedbacks() {
     const seeLessText = translations[currentLang].see_less;
 
     list.innerHTML = feedbacks.map((f, idx) => {
-        // Logic to determine if text is long enough to need truncation
         const isLong = f.text.length > 100;
         
         return `
@@ -766,7 +731,6 @@ function renderFeedbacks() {
     `}).join('');
 }
 
-// --- NEW: Toggle See More / See Less ---
 function toggleSeeMore(id) {
     const content = document.getElementById(`review-text-${id}`);
     const btn = document.getElementById(`btn-${id}`);
@@ -791,7 +755,6 @@ function submitFeedback() {
         return;
     }
 
-    // Add new feedback to top
     feedbacks.unshift({
         name: name,
         rating: currentRating,
@@ -799,22 +762,18 @@ function submitFeedback() {
         date: new Date().toISOString().split('T')[0]
     });
 
-    // Clear form
     document.getElementById('feedName').value = '';
     document.getElementById('feedText').value = '';
     setRating(5);
 
-    // Re-render
     renderFeedbacks();
     showAlert(translations[currentLang].msg_thanks);
 }
 
-// --- MODAL LOGIC (UPDATED FOR LANG) ---
 function openModal(id) {
     const t = tourDatabase.find(x => x.id === id);
     if(!t) return;
 
-    // Use currentLang to pick correct string/array
     document.getElementById('modalTitle').innerText = t.name[currentLang];
     document.getElementById('modalRegion').innerText = t.region[currentLang];
     document.getElementById('modalDesc').innerText = t.desc[currentLang];
@@ -843,7 +802,6 @@ let currentUser = localStorage.getItem('currentUser');
 
 function openAuthModal() {
     if (currentUser) {
-        // If logged in, maybe show logout confirmation instead
         if (confirm(currentLang === 'az' ? 'Hesabdan çıxmaq istəyirsiniz?' : 'Do you want to logout?')) {
             logout();
         }
@@ -851,8 +809,7 @@ function openAuthModal() {
         const m = document.getElementById('authModal');
         m.classList.remove('hidden');
         setTimeout(() => m.classList.add('active'), 10);
-        switchAuthTab('login'); // Resets to login tab
-        // Clear inputs
+        switchAuthTab('login');
         document.getElementById('loginUsername').value = '';
         document.getElementById('loginPassword').value = '';
         document.getElementById('regUsername').value = '';
@@ -875,32 +832,25 @@ function switchAuthTab(tab) {
     const formLogin = document.getElementById('formLogin');
     const formRegister = document.getElementById('formRegister');
 
-    // Define specific classes for states to avoid conflicts
     const activeClasses = ['border-brand-green', 'text-brand-green', 'border-b-2'];
     const inactiveClasses = ['text-gray-400', 'dark:text-gray-500', 'hover:text-brand-gold'];
 
     if (tab === 'login') {
-        // Activate Login Tab
         tabLogin.classList.add(...activeClasses);
         tabLogin.classList.remove(...inactiveClasses);
 
-        // Deactivate Register Tab
         tabRegister.classList.remove(...activeClasses);
         tabRegister.classList.add(...inactiveClasses);
         
-        // Show Login Form
         formLogin.classList.remove('hidden');
         formRegister.classList.add('hidden');
     } else {
-        // Activate Register Tab
         tabRegister.classList.add(...activeClasses);
         tabRegister.classList.remove(...inactiveClasses);
 
-        // Deactivate Login Tab
         tabLogin.classList.remove(...activeClasses);
         tabLogin.classList.add(...inactiveClasses);
         
-        // Show Register Form
         formRegister.classList.remove('hidden');
         formLogin.classList.add('hidden');
     }
@@ -932,7 +882,6 @@ function handleRegister() {
     successBox.innerText = translations[currentLang].auth_success_reg;
     successBox.classList.remove('hidden');
 
-    // Switch to login after a delay
     setTimeout(() => {
         switchAuthTab('login');
         document.getElementById('loginUsername').value = user;
@@ -958,8 +907,6 @@ function handleLogin() {
         closeAuthModal();
         updateAuthButton();
         loadUserGameState();
-        // Optional: Alert welcome
-        // showAlert(`Welcome back, ${user}!`);
     } else {
         errBox.innerText = translations[currentLang].auth_err_invalid;
         errBox.classList.remove('hidden');
@@ -970,7 +917,7 @@ function logout() {
     currentUser = null;
     localStorage.removeItem('currentUser');
     updateAuthButton();
-    location.reload(); // Refresh to clear state if needed
+    location.reload(); 
 }
 
 function updateAuthButton() {
@@ -979,7 +926,7 @@ function updateAuthButton() {
     
     if (currentUser) {
         span.innerText = currentUser;
-        btn.title = translations[currentLang].nav_logout; // Tooltip
+        btn.title = translations[currentLang].nav_logout; 
     } else {
         span.innerText = translations[currentLang].nav_login;
         btn.title = "";
@@ -991,7 +938,6 @@ function updateAuthButton() {
    ========================================= */
 let userPoints = 0;
 let userCoupons = [];
-// Track used questions to prevent repeats (shared for all users)
 let usedQuestions = JSON.parse(localStorage.getItem('usedQuestions')) || [];
 
 function getUserStorageKey(base) {
@@ -1082,9 +1028,7 @@ function buyCoupon(percent, cost) {
             userPoints -= cost;
             userCoupons.push(percent);
             
-            // Save
-            saveUserGameState(); // was: localStorage.setItem('userPoints', userPoints);
-            localStorage.setItem('userCoupons', JSON.stringify(userCoupons));
+            saveUserGameState();
             
             renderCoupons();
             showAlert(translations[currentLang].quiz_points_alert_success);
@@ -1095,7 +1039,6 @@ function buyCoupon(percent, cost) {
 }
 
 async function startQuiz(level) {
-    // NEW: Auth Guard
     if (!currentUser) {
         showAlert(currentLang === 'az' ? "Hesabınıza daxil olun, yoxdursa qeydiyyat edin." : "Please login or register to play.");
         return;
@@ -1104,18 +1047,15 @@ async function startQuiz(level) {
     currentQuizLevel = level;
     currentQuizPoints = level === 'easy' ? 1 : (level === 'medium' ? 2 : 3);
     
-    // UI Setup: Show Loading Spinner
     document.getElementById('quizLevelSelect').classList.add('hidden');
     document.getElementById('quizContainer').classList.remove('hidden');
     document.getElementById('quizResult').classList.add('hidden');
     
-    // Loading Animation
     document.getElementById('optionsContainer').innerHTML = '<div class="flex justify-center p-4"><div class="w-8 h-8 border-4 border-brand-green border-t-transparent rounded-full animate-spin"></div></div>';
     document.getElementById('quizLevelBadge').innerText = level.toUpperCase();
     document.getElementById('questionText').innerText = currentLang === 'az' ? 'Sual hazırlanır...' : 'Generating question...';
 
     try {
-        // Construct prompt to get unique question in JSON
         const prompt = `
             Create a unique multiple-choice question about Azerbaijan (geography, culture, history, nature).
             Difficulty Level: ${level} (Easy: very well known facts. Medium: general knowledge. Hard: specific details, numbers, dates).
@@ -1133,27 +1073,21 @@ async function startQuiz(level) {
             Do not include markdown formatting like \`\`\`json. Just the JSON string.
         `;
 
-        // Call API
         const responseText = await callGeminiAPI(prompt);
         
-        // Clean response
         const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
         const qData = JSON.parse(cleanJson);
 
-        // Check validity
         if(!qData.q || !Array.isArray(qData.a)) throw new Error("Invalid format");
 
-        // Render Question
         renderQuizQuestion(qData);
         
-        // Save to used questions (limit history to last 50 to avoid huge prompt)
         usedQuestions.push(qData.q);
         if(usedQuestions.length > 50) usedQuestions.shift();
         localStorage.setItem('usedQuestions', JSON.stringify(usedQuestions));
 
     } catch (error) {
         console.error("AI Quiz Error:", error);
-        // Fallback to static data
         const questions = quizData[level];
         const randIndex = Math.floor(Math.random() * questions.length);
         renderQuizQuestion(questions[randIndex]);
@@ -1177,7 +1111,6 @@ function checkAnswer(selected, correct) {
     const resultBox = document.getElementById('quizResult');
     const opts = document.getElementById('optionsContainer').children;
     
-    // Disable all buttons
     for (let btn of opts) {
         btn.disabled = true;
         btn.classList.add('disabled', 'opacity-50');
@@ -1187,7 +1120,6 @@ function checkAnswer(selected, correct) {
         opts[selected].classList.remove('opacity-50');
         opts[selected].classList.add('bg-green-100', 'border-green-500', 'text-green-700');
         
-        // Daily limit per user
         const { dailyData, key } = getDailyData();
         
         if (dailyData.points >= 30) {
@@ -1216,14 +1148,13 @@ function checkAnswer(selected, correct) {
         opts[selected].classList.remove('opacity-50');
         opts[selected].classList.add('bg-red-100', 'border-red-500', 'text-red-700');
         opts[correct].classList.remove('opacity-50');
-        opts[correct].classList.add('bg-green-100', 'border-green-500', 'text-green-700'); // Show correct answer
+        opts[correct].classList.add('bg-green-100', 'border-green-500', 'text-green-700'); 
         
         resultBox.innerHTML = `<span class="text-red-600">${translations[currentLang].quiz_wrong}</span>`;
     }
     
     resultBox.classList.remove('hidden');
     
-    // Auto reset after 2 seconds
     setTimeout(() => {
         resetQuizUI();
     }, 2500);
@@ -1235,23 +1166,28 @@ function resetQuizUI() {
 }
 
 /* =========================================
-   8. AI & GEMINI LOGIC
+   8. AI & GEMINI LOGIC (UPDATED FOR VERCEL)
    ========================================= */
 
+// UPDATED: Calls the internal Vercel function instead of Google directly
 async function callGeminiAPI(prompt, systemInstruction = "") {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
     try {
-        const response = await fetch(url, { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ 
-                contents: [{ parts: [{ text: prompt }] }], 
-                systemInstruction: { parts: [{ text: systemInstruction }] } 
-            }) 
+        const response = await fetch('/api/gemini', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt, systemInstruction })
         });
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
+
         const data = await response.json();
-        return data.candidates[0].content.parts[0].text;
-    } catch (e) { console.error(e); return "Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin."; }
+        return data.text;
+    } catch (e) { 
+        console.error(e); 
+        return currentLang === 'az' ? "Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin." : "Error occurred. Please try again."; 
+    }
 }
 
 async function generateHikingPlan() {
@@ -1290,7 +1226,6 @@ async function generateHikingPlan() {
     contentDiv.classList.remove('hidden');
 }
 
-// Chat - Updated Logic for Animation
 function toggleChat() { 
     const w = document.getElementById('chatWindow'); 
     w.classList.toggle('active');
@@ -1304,17 +1239,14 @@ async function sendChatMessage() {
     
     if(!msg) return;
 
-    // User msg
     box.innerHTML += `<div class="message user p-3 w-fit shadow-sm text-sm">${msg}</div>`;
     inp.value = '';
     box.scrollTop = box.scrollHeight;
 
-    // Loading
     const loadId = 'load-' + Date.now();
     box.innerHTML += `<div id="${loadId}" class="message bot p-3 w-fit shadow-sm text-sm dark:bg-gray-700 dark:text-gray-200"><i class="fas fa-ellipsis-h animate-pulse"></i></div>`;
     box.scrollTop = box.scrollHeight;
 
-    // API Call
     const prompt = `Sən "Zirvə.az" saytının dağ bələdçisisən. Yalnız Azərbaycanın daxili turizmi və dağları haqqında danış. Dil: ${currentLang}. Sual: ${msg}`;
     const res = await callGeminiAPI(prompt);
 
@@ -1331,10 +1263,9 @@ window.onload = function() {
     initMap();
     renderTours();
     renderFeedbacks();
-    updateAuthButton(); // check login status
-    loadUserGameState(); // Init per-user points/coupons shop
+    updateAuthButton(); 
+    loadUserGameState(); 
     
-    // Check for saved theme
     const savedTheme = localStorage.getItem('theme');
     if(savedTheme === 'dark') {
         setTheme('dark');
@@ -1342,7 +1273,6 @@ window.onload = function() {
         setTheme('light');
     }
 
-    // Init FAQ Toggles
     const faqToggles = document.querySelectorAll('.faq-toggle');
     faqToggles.forEach(toggle => {
         toggle.addEventListener('click', () => {
@@ -1359,34 +1289,26 @@ window.onload = function() {
         });
     });
 
-    // Initial Marker Position
     setTimeout(() => window.dispatchEvent(new Event('scroll')), 500);
 
-    // --- IMMEDIATE SLIDE & SMOOTH SCROLL ---
     const navLinks = document.querySelectorAll('.nav-link');
     const navMarker = document.getElementById('navMarker');
 
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            // Prevent default jump
             e.preventDefault();
 
-            // 1. SET MANUAL SCROLLING FLAG
-            // This stops the scroll spy from jittering the marker while we auto-scroll
             isManualScrolling = true;
             clearTimeout(scrollTimeout);
             scrollTimeout = setTimeout(() => {
                 isManualScrolling = false;
-                // Trigger a scroll check once finished to ensure correct state
                 window.dispatchEvent(new Event('scroll'));
             }, 1000);
 
-            // 2. SCROLL LOGIC
             const targetId = link.getAttribute('href');
             const targetSection = document.querySelector(targetId);
             
             if (targetSection) {
-                // Height of fixed nav (approx 80-90px)
                 const headerOffset = 90; 
                 const elementPosition = targetSection.getBoundingClientRect().top;
                 const offsetPosition = elementPosition + window.scrollY - headerOffset;
@@ -1397,13 +1319,10 @@ window.onload = function() {
                 });
             }
 
-            // 3. MARKER LOGIC (Visual sliding effect)
-            // Move marker to clicked element immediately
             navMarker.style.width = `${e.target.offsetWidth}px`;
             navMarker.style.left = `${e.target.offsetLeft}px`;
             navMarker.style.opacity = '1';
             
-            // Update Active Color immediately
             navLinks.forEach(l => l.classList.remove('text-brand-gold'));
             e.target.classList.add('text-brand-gold');
         });
