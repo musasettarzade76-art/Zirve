@@ -467,15 +467,15 @@ const tourDatabase = [
     },
     { 
         id: 13, 
-        name: { az: "Bakı - Qız Qalası", en: "Baku - Maiden Tower" }, 
-        region: { az: "Bakı", en: "Baku" }, 
-        type: "tour",
-        price: 50, 
-        days: { az: "1 Gün", en: "1 Day" }, 
-        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Q%C4%B1z_qalas%C4%B1_%C3%BCmumi_2016.jpg/1200px-Q%C4%B1z_qalas%C4%B1_%C3%BCmumi_2016.jpg", 
-        lat: 40.5694, lng: 45.7289, 
-        features: { az: ["Tarixi abidə", "Paytaxt", "Bakı"], en: ["Historical Monument", "Capital", "Baku"] }, 
-        desc: { az: "Azərbaycanın Paytaxtında yerləşən məşhur qala.", en: "Famous tower located in the Capital of Azerbaijan." }
+                name: { az: "Gədəbəy, Cavanşir Qalası", en: "Baku - Maiden Tower" }, 
+                region: { az: "Gədəbəy", en: "Gədəbəy" }, 
+                type: "tour",
+                price: 50, 
+                days: { az: "1 Gün", en: "1 Day" }, 
+                img: "https://i.ytimg.com/vi/n0zGkpGWJOI/maxresdefault.jpg", 
+                lat: 40.2158, lng: 49.5014, 
+                features: { az: ["Tarixi abidə", "Qala", "Gədəbəy"], en: ["Historical Monument", "Capital", "Baku"] }, 
+                desc: { az: "Gədəbəydə yerləşən məşhur qala.", en: "Famous tower located in Gedebey." }
     },
     { 
         id: 7, 
@@ -1327,4 +1327,5 @@ window.onload = function() {
             e.target.classList.add('text-brand-gold');
         });
     });
+
 }
